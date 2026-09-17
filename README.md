@@ -1,28 +1,32 @@
-# HACSA Sankofa Insights — Frontend
+# React + TypeScript + Vite
 
-React + Vite + TypeScript frontend for HACSA's self-service event registration, feedback, and live analytics dashboard.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-**Live app:** https://hacsa-sankofa-insights.vercel.app
+Currently, two official plugins are available:
 
-This is the `frontend` branch — it contains only the deployable frontend application (this is what Vercel builds and serves). For the Supabase backend (schema, RLS, functions, the AI edge function), see the `backend` branch of this same repository.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Quick start
+## React Compiler
 
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the Oxlint configuration
+
+If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+
+```json
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc"],
+  "options": {
+    "typeAware": true
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  }
+}
 ```
-npm install
-cp .env.example .env.local   # then fill in the real Supabase URL/anon key
-npm run dev
-```
 
-See `TEAM_SETUP.md` for the full walkthrough, including known quirks hit during development.
-
-## Stack
-
-React 18 · Vite · TypeScript · Tailwind CSS · Recharts · qrcode.react · Supabase JS client
-
-## Deploying
-
-```
-npm run build
-npx vercel --prod
-```
+See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.

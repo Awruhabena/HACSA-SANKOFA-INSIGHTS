@@ -109,3 +109,80 @@ export function getCountryGroups(countries: CountryOption[]) {
 export function validateEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+
+
+/**
+ * Detects definitively-mistyped email domains and blocks submission until
+ * corrected.
+ *
+ * Deliberately uses an explicit list of known-impossible typos rather than
+ * fuzzy string matching. Fuzzy matching (e.g. Levenshtein distance) would
+ * flag real-but-uncommon domains — "email.com" and "all.com" are genuine
+ * domains one character away from "mail.com" and "aol.com" — and blocking
+ * a real attendee at the door of a live event is far worse than letting an
+ * occasional typo through. Every entry below is a string that cannot be a
+ * legitimate domain, so a false positive is impossible by construction.
+ *
+ * This is a DATA QUALITY measure, not a security control. It prevents honest
+ * mistakes that would otherwise break the link between someone's registration
+ * and their feedback. It does not, and is not intended to, stop deliberate
+ * misuse — a bad actor simply types a well-formed address.
+ *
+ * Returns the corrected domain if a known typo is found, otherwise null.
+ */
+const EMAIL_DOMAIN_TYPOS: Record<string, string> = {
+  // gmail.com
+  'gmial.com': 'gmail.com',
+  'gmai.com': 'gmail.com',
+  'gmal.com': 'gmail.com',
+  'gamil.com': 'gmail.com',
+  'gnail.com': 'gmail.com',
+  'gmaill.com': 'gmail.com',
+  'gmail.con': 'gmail.com',
+  'gmail.cm': 'gmail.com',
+  'gmail.co': 'gmail.com',
+  'gmail.om': 'gmail.com',
+  'gmailc.om': 'gmail.com',
+  // yahoo.com
+  'yaho.com': 'yahoo.com',
+  'yahooo.com': 'yahoo.com',
+  'yhoo.com': 'yahoo.com',
+  'yahoo.con': 'yahoo.com',
+  'yahoo.cm': 'yahoo.com',
+  'yahoo.om': 'yahoo.com',
+  // hotmail.com
+  'hotmial.com': 'hotmail.com',
+  'hotmai.com': 'hotmail.com',
+  'hotmal.com': 'hotmail.com',
+  'hotmaill.com': 'hotmail.com',
+  'hotmail.con': 'hotmail.com',
+  'hotmail.cm': 'hotmail.com',
+  'hotmail.om': 'hotmail.com',
+  // outlook.com
+  'outlok.com': 'outlook.com',
+  'outllok.com': 'outlook.com',
+  'outook.com': 'outlook.com',
+  'outlook.con': 'outlook.com',
+  'outlook.cm': 'outlook.com',
+  'outlook.om': 'outlook.com',
+  // icloud.com
+  'iclod.com': 'icloud.com',
+  'icloud.con': 'icloud.com',
+  'icloud.cm': 'icloud.com',
+  // aol.com
+  'aol.con': 'aol.com',
+  'aol.cm': 'aol.com',
+  // live.com
+  'live.con': 'live.com',
+  'live.cm': 'live.com',
+};
+
+export function checkEmailDomainTypo(email: string): string | null {
+  const at = email.lastIndexOf('@');
+  if (at === -1) return null;
+
+  const domain = email.slice(at + 1).trim().toLowerCase();
+  if (!domain) return null;
+
+  return EMAIL_DOMAIN_TYPOS[domain] ?? null;
+}

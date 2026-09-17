@@ -8,6 +8,7 @@ import {
   OCCUPATION_STATUSES,
   getCountryGroups,
   validateEmail,
+  checkEmailDomainTypo,
 } from '../../lib/constants';
 import type { Event, RegistrationFormData } from '../../lib/types';
 import { Spinner, ErrorMessage, Button, Input, Select, Card } from '../../components/ui';
@@ -43,6 +44,13 @@ function validateField(
       if (!value) return 'Please enter your email address.';
       if (typeof value === 'string' && !validateEmail(value))
         return 'Please enter a valid email address.';
+      if (typeof value === 'string') {
+        const suggestedDomain = checkEmailDomainTypo(value);
+        if (suggestedDomain) {
+          const localPart = value.slice(0, value.lastIndexOf('@'));
+          return `Did you mean ${localPart}@${suggestedDomain}? Please correct your email to continue.`;
+        }
+      }
       break;
     case 'current_country':
       if (!value) return 'Please select your current country.';

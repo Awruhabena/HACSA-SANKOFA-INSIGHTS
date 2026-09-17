@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { validateEmail } from '../../lib/constants';
+import { validateEmail, checkEmailDomainTypo } from '../../lib/constants';
 import type { Event, FeedbackFormData } from '../../lib/types';
 import { Spinner, ErrorMessage, Button, Input, Card } from '../../components/ui';
 import { Star, Sparkles, Send } from 'lucide-react';
@@ -68,6 +68,13 @@ export default function Feedback() {
           if (!value) return 'Please enter your email address.';
           if (typeof value === 'string' && !validateEmail(value))
             return 'Please enter a valid email address.';
+          if (typeof value === 'string') {
+            const suggestedDomain = checkEmailDomainTypo(value);
+            if (suggestedDomain) {
+              const localPart = value.slice(0, value.lastIndexOf('@'));
+              return `Did you mean ${localPart}@${suggestedDomain}? Please correct your email to continue.`;
+            }
+          }
           break;
         case 'rating':
           if (!value || value === 0) return 'Please select a rating.';
