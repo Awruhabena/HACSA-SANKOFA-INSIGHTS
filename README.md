@@ -37,6 +37,7 @@ Attendees register themselves by scanning a QR code on arrival — no app, no ac
 
 No custom API server. The frontend calls Supabase Postgres functions directly — two for writing data (`register_attendee`, `submit_feedback`), four for reading pre-aggregated, anonymised dashboard data. The dashboard subscribes to Postgres realtime changes on the core tables, so any new registration or feedback submission updates every open dashboard instantly, with no manual refresh.
 
+
 ## Data model
 
 Five tables. `people` is the identity spine, keyed on email — every registration, everywhere, checks for an existing person before creating a new one, which is what makes cross-event tracking work. `region_type` (`local_ghana` / `continental_africa` / `diaspora`) is never asked directly; it's derived server-side from the attendee's country, so the classification is always consistent no matter who's filling in the form. `events`, `registrations`, and `feedback` round out the core loop; `ai_summaries` caches one AI-generated summary per event.
